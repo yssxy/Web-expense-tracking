@@ -1,7 +1,13 @@
 const form = document.getElementById("expenseForm");
 const tableBody = document.querySelector("#expenseTable tbody");
 const exportBtn = document.getElementById("exportBtn");
-let expenses = [];
+
+// Load expenses from localStorage or start empty
+let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+function saveExpenses() {
+  localStorage.setItem("expenses", JSON.stringify(expenses));
+}
 
 function renderTable() {
   tableBody.innerHTML = "";
@@ -21,13 +27,16 @@ function renderTable() {
   });
 }
 
+// Delete an expense
 function deleteExpense(index) {
   if(confirm("Are you sure you want to delete this entry?")) {
     expenses.splice(index, 1);
+    saveExpenses();
     renderTable();
   }
 }
 
+// Add new expense
 form.addEventListener("submit", function(e){
   e.preventDefault();
 
@@ -41,10 +50,12 @@ form.addEventListener("submit", function(e){
 
   const expense = {date, category, description, net, vat, total, receipt};
   expenses.push(expense);
+  saveExpenses();
   renderTable();
   form.reset();
 });
 
+// Export to CSV
 exportBtn.addEventListener("click", function(){
   if(expenses.length === 0){
     alert("No expenses to export!");
@@ -64,3 +75,6 @@ exportBtn.addEventListener("click", function(){
   a.click();
   URL.revokeObjectURL(url);
 });
+
+// Render table on page load
+renderTable();
